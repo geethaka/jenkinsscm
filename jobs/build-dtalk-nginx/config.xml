@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>ssh://ec2-50-19-97-148.compute-1.amazonaws.com/symphony/product/web-portal.git</url>
+        <credentialsId>af3778d0-f05c-4608-878e-c085228d6b05</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>app</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>nginx.conf</textFilePath>
+      <textFileContent>user nginx;
+worker_processes 4;
+pid /run/nginx.pid;
+
+
+events {
+	worker_connections 768;
+}
+
+http {
+	sendfile on;
+	access_log /var/log/nginx/app.log;
+	error_log /var/log/nginx/appe.log;
+	include /etc/nginx/mime.types;
+
+	
+
+upstream phpfcgi {
+     	server dtalk-php-svc:9000;
+
+     }
+
+
+  server {
+
+        listen       80;
+        server_name  admin.genie.lk;
+		root /app/public/;
+		error_log    /var/log/nginx/GenieAdminAppSvr1.error.log;
+    	access_log   /var/log/nginx/GenieAdminAppSvr1.access.log;
+        index index.php index.html index.htm; 
+ 
+	location / {
+        	try_files $uri $uri/ /index.php?$query_string;
+    	}
+
+	location ~ \.php$ {
+        	try_files $uri /index.php =404;
+        	fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        	fastcgi_pass phpfcgi;
+        	fastcgi_index index.php;
+        	fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        	include fastcgi_params;
+    	}
+
+ 	
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+
+    }
+
+	
+	
+}
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>Dockerfile</textFilePath>
+      <textFileContent>FROM centos:7
+
+RUN echo $&apos;[nginx] \n\
+name=nginx repo \n\
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/ \n\
+gpgcheck=0 \n\
+enabled=1&apos; &gt;&gt; /etc/yum.repos.d/nginx.repo  \
+	&amp;&amp; yum update \
+	&amp;&amp; yum install -y nginx
+	
+ADD nginx.conf /etc/nginx/nginx.conf
+#ADD sites-enabled/ /etc/nginx/sites-enabled
+	
+
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+	&amp;&amp; ln -sf /dev/stderr /var/log/nginx/error.log
+
+ADD app/ /app
+
+EXPOSE 80 443
+
+CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <hudson.tasks.Shell>
+      <command>sudo docker build -t dtnginx .
+sudo docker tag dtnginx:latest 341025277667.dkr.ecr.eu-west-1.amazonaws.com/dtnginx:latest
+sudo docker login -u AWS -p AQECAHh+dS+BlNu0NxnXwowbILs115yjd+LNAZhBLZsunOxk3AAAAw0wggMJBgkqhkiG9w0BBwagggL6MIIC9gIBADCCAu8GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMIo3pva7vFNOycSVFAgEQgIICwLTOZx/WV6sLQ1I1/8W2SRdhGxhpvbvFMUwrNFBm1dfU1H5W9+Nk6FWFqr7QYBxuCxOvgVbLS7KeYSCc4Ff4wqS45lN3jPoNMqk66WYiPPobtgmZfEwFf9BtZiN3ymTI5zxERIMor0EPruFNm3iRATAU9T+j9maecDaQv+r6hlLqkZ8EaZIP9A4itFRJ/zRtm1KI/pk1/5lxUuVMcy7RLGMvv/04dWNCUYvLF/XW0gYkL76/kNaihkhp0CY8kbl9cGC4PeDap3BLiwwB68tOs3aIjh5jdkQdZWWWSRtNRtVHUb+e0sKudDQixuv2U7uw41z0pgzImspVOc13yULALe8pVmKLxyUxMhyoqvkJI9o/mgT8UC6RiRPA+1NCqjUXPPJPBGpipb2ZFEOyqeYZS11LIpyQaJayEqZZHob0EfE3rluLabr6dnrqSuD0AO3GG5kr8jOeIGKV3U4ecPie8AywhvlSagEMLFscH6r04UOoSgfeVbmtmJYh0iqv9IcTkLFXPL9URrWuOhEDwzZKqSVZzAOJoUNFYoWf5lNKc6qsheAANRShtrcEDTJ/1qyl1gfx9PQJfIZaONgR+fLu9t2fyD41PMVESRkGLVlYO2V7Je98443AmtsALHrK5523fr4ixioW9fP49a8ETVf0UKOv5PncniBwvXiq1Cl76MiJ5hJL+8bcdwDKGNax3mkptGWAGEjJwnXaxtzfWfzgqXqCy2Z5N9BKMVNSEgLw40awBFuCMzFUhvC+PwZSQ4Wo3qFS7dmJunQ4274tGX9urNDxzE6p0+gZdP2Lk34bb/nQnIqPOZAd8rqQMnZAZIIMHxdKgbHXm2WYJOah05s3BUkMMjmKXl7Xlojbcd+6M6HdNbTRGvq1IN6I2tzmfFac1rgZYAD9P79wRZvbWrrdVdu+4CLwBvtB23t1pWPPQpiL -e none https://341025277667.dkr.ecr.eu-west-1.amazonaws.com
+sudo docker push 341025277667.dkr.ecr.eu-west-1.amazonaws.com/dtnginx:latest</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>ssh://ec2-50-19-97-148.compute-1.amazonaws.com/symphony/product/services.git</url>
+        <credentialsId>af3778d0-f05c-4608-878e-c085228d6b05</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/dtalk</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>app</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>Dockerfile</textFilePath>
+      <textFileContent>FROM centos:latest
+
+RUN yum install -y wget; yum -y clean all
+RUN yum install -y which; yum -y clean all
+RUN wget --no-cookies --no-check-certificate --header &quot;Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie&quot; &quot;http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-linux-x64.rpm&quot;
+RUN rpm -ivh jdk-8u45-linux-x64.rpm
+RUN rm -rf jdk-8u45-linux-x64.rpm
+
+RUN wget http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.3.14.v20161028/jetty-distribution-9.3.14.v20161028.tar.gz
+RUN tar xf jetty-distribution-9.3.14.v20161028.tar.gz
+RUN rm -rf jetty-distribution-9.3.14.v20161028.tar.gz
+RUN mv jetty-distribution-9.3.14.v20161028 /opt/jetty/
+RUN useradd -m jetty
+RUN chown -R jetty:jetty /opt/jetty/
+
+ADD webapps/ /opt/jetty/webapps
+
+EXPOSE 8080
+
+ENTRYPOINT /opt/jetty/bin/jetty.sh start &amp;&amp; bash
+
+
+
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>app/modules/src/main/resources/modules.properties</textFilePath>
+      <textFileContent>######### database ##########
+database.driver=com.mysql.jdbc.Driver
+database.url=jdbc:mysql://symphonydtalk.c6kifiat6wer.eu-west-1.rds.amazonaws.com:3306/dtalk
+database.username=root
+database.password=1qaz2wsx
+
+#########database for MIFE#################
+#database.driver=com.mysql.jdbc.Driver
+#database.url=jdbc:mysql://localhost:6603/symphony-dialog-prd
+#database.username=symphony_app
+#database.password=symphony
+
+######### D-App ##########
+dapp.default.maxDistance=10000
+dapp.allowed.msisdn.formats=^((\\+)?94|0)7[76][0-9]{7}$
+dapp.allowed.msisdn.formats.for.signUp =^((\\+)94)7[0125678][0-9]{7}$
+dapp.allowed.msisdn.formats.for.like.comment =^((\\+)?94)7[0125678][0-9]{7}$
+dapp.allowed.email.formats=^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$
+dapp.allowed.msisdn.formats.starPoints=^7[76][0-9]{7}$
+dapp.sync.accessToken=e39dc94234beb2e05d5c5e9beb339803
+dapp.allowed.pin.format=^[0-9]{6}$
+dapp.event.count=10
+dapp.app.version.android = 1.2
+dapp.app.version.ios = 1.2
+dapp.app.type.android = ANDROID
+dapp.app.type.ios = IOS
+dapp.download.link =  www.dialog.lk/d-app-android / www.dialog.lk/d-app-ios
+dapp.voucher.maximum.voucher.reserved.time = 180
+dapp.addToBill.commision = 11
+
+######### webservice - voucher service ##########
+voucher.service.appId=1
+voucher.service.marshaller.contextPath=com.dialog.vouchers
+voucher.service.defaultUri=http://dapptest.dialog.lk:8080/axis2/services/VoucherService/
+
+######## apple certificate p12 file #############
+certificate.path=/home/kalpana/servers/BackendServices/Symphony/services/modules/src/main/resources/apns-dev-cert.p12
+certificate.password=sym.dapp
+certificate.production=false
+
+######## schedule notification time interval ######
+schedule.notification.interval=5
+
+######## CG ######
+cg.service.marshaller.contextPath1=types.ws.cg.dialog.lk
+cg.service.url=http://172.26.1.40:8080/CGWebService
+cg.connection.timeout=20000
+cg.read.timeout=20000
+cg.service.appId=VOUCHER2
+cg.service.reasonCode=629
+cg.service.password=Vouc77Dt
+cg.service.domainId=GSM
+
+######## DApp Ideabiz token management ###########
+ideabiz.sms.messaging = https://ideabiz.lk/apicall/smsmessaging/v2/outbound/7555/requests
+ideabiz.sms.subscribe = https://ideabiz.lk/apicall/subscription/v1/subscribe
+ideabiz.sms.root.url = https://ideabiz.lk/apicall/token
+ideabiz.sms.scope = PRODUCTION
+ideabiz.sms.consumer.key = _keTc1V_nMcrP8BtO1nB84Jviewa
+ideabiz.sms.consumer.secret = Dlxdk2KaN0mkFOv3T73VMaGnes8a
+ideabiz.sms.username = axipaynew
+ideabiz.sms.password = dialog@123
+ideabiz.sms.application = Axipay
+
+################# D_Talk ##################
+dTalk.sms.gateway=MIFE
+## NEXMO/ MIFE
+
+######### Nexmo ########
+nexmo.sms.gratway.url=https://rest.nexmo.com/sms/json
+nexmo.sms.api.key=6a2ebfa9
+nexmo.sms.api.secret=7d934548
+
+################# D-Talk FCM message ##################
+fcm.push.notification.service.url = https://fcm.googleapis.com/fcm/send
+fcm.push.notification.server.key = AIzaSyB5rUphPsF6NbLU20KlVW_RxYNpAhgFwBw
+
+################# D-talk image url ###################
+dTalk.image.base.url=/images/customers/
+
+################## D-Talk wrong attempts ############
+dTalk.maximum.wrong.registration.otp.attempts=3
+dTalk.maximum.resend.otp=3
+
+################ D-Talk data formats ################
+dTalk.allowed.first.name.formats =^[_A-Za-z]{2,50}$
+#dTalk.allowed.last.name.formats = ^[a-zA-z]+([ &apos;-][a-zA-Z]+)*$
+
+############## news categories #####################
+dTalk.hot.news.derana.rss = http://www.adaderana.lk/rsshotnews.php
+dTalk.entertainment.news.derana.rss = http://adaderana.lk/rssentertainment.php
+dTalk.sports.news.derana.rss = http://www.adaderana.lk/rsssports.php
+
+
+######## DApp StarPoints ###########
+ideabiz.starPoints.burn.url = https://ideabiz.lk/apicall/startpoint/v1/burnStarpoints
+ideabiz.starPoints.counter.alias = DAPP_VOUCHER1
+ideabiz.starPoints.counter.auth = 123456
+ideabiz.starPoints.subscriber.type = MOBILE
+ideabiz.starPoints.access.mode = POS
+
+######## DApp EzCash ###########
+mife.ezCash.submit.transaction.url = https://mife.dialog.lk/apicall/ezcash/PaymentModule/agentservice/submitTransactionRequest/1.0
+mife.ezCash.username = ideaBiz_client
+mife.ezCash.password = IbizClient@2016
+mife.ezCash.agentAlias = 777411164
+mife.ezCash.agentPin = 1234
+mife.ezCash.channel = WEB
+mife.ezCash.txType = TX_AOTC
+mife.ezCash.transaction.status.check.url = https://mife.dialog.lk/apicall/ezcash/PaymentModule/agentservice/transactionStatusViaRequestId/1.0
+
+######### D-Talk OCS ##########
+mife.ocs.username = Ideahub
+mife.ocs.password = aq1sw2de3!
+mife.ocs.scope = PRODUCTION
+mife.ocs.basic = b3JhZEl5NjE3WkowZ016RFNyTlZmN2tfa2xNYTo4T1lPaVAwWnM0UTlrUzZqdnpNSHJoS3haMTRh
+mife.ocs.get.access.token.url = https://mife.dialog.lk/apicall/token
+mife.ocs.create.subscriber = https://mife.dialog.lk/apicall/rcsmanagesubscriber/v1.0/create/
+mife.ocs.remove.subscriber = https://mife.dialog.lk/apicall/rcsmanagesubscriber/remove/
+mife.ocs.main.package.change = https://mife.dialog.lk/apicall/rcsmanagesubscriber/changemainpackage/
+mife.ocs.sub.package.change = https://mife.dialog.lk/apicall/rcsmanagesubscriber/changesubpackage/
+mife.ocs.balance.query = https://mife.dialog.lk/apicall/rcsbalancequery/all/
+mife.ocs.account.topup = https://mife.dialog.lk/apicall/rcsmanagesubscriber/
+
+mife.ocs.account.topup.reason.code = 111
+mife.ocs.account.remaining.credit.type = 2001
+mife.ocs.account.remaining.time.type = 4031
+
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>sonar-project.properties</textFilePath>
+      <textFileContent># required metadata
+sonar.projectKey=Dtalk-service
+sonar.projectName=Dtalk-service
+sonar.projectVersion=1.0.0
+
+sonar.sources=app/modules/src/main
+sonar.language=java
+
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <hudson.plugins.sonar.SonarRunnerBuilder plugin="sonar@2.5">
+      <project>sonar-project.properties</project>
+      <properties></properties>
+      <javaOpts></javaOpts>
+      <additionalArguments></additionalArguments>
+      <jdk>(Inherit From Job)</jdk>
+      <task></task>
+    </hudson.plugins.sonar.SonarRunnerBuilder>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

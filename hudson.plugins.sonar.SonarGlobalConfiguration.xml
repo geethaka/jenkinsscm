@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson.plugins.sonar.SonarGlobalConfiguration plugin="sonar@2.5">
+  <installations>
+    <hudson.plugins.sonar.SonarInstallation>
+      <name></name>
+      <serverUrl>http://35.156.124.188:9000</serverUrl>
+      <serverVersion>5.1</serverVersion>
+      <serverAuthenticationToken></serverAuthenticationToken>
+      <mojoVersion></mojoVersion>
+      <databaseUrl>jdbc:mysql://35.156.124.188:3306/sonar?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8</databaseUrl>
+      <databaseLogin>sonar</databaseLogin>
+      <additionalProperties></additionalProperties>
+      <additionalAnalysisProperties></additionalAnalysisProperties>
+      <triggers>
+        <skipScmCause>false</skipScmCause>
+        <skipUpstreamCause>false</skipUpstreamCause>
+        <envVar></envVar>
+      </triggers>
+      <sonarLogin>admin</sonarLogin>
+      <databaseSecret>qN/7I1impGAMhygnGNB99KBhqqpk/8V3wxNAZCLgx0Y=</databaseSecret>
+      <sonarSecret>IzJwn0eomx6sJoDG8981OaBhqqpk/8V3wxNAZCLgx0Y=</sonarSecret>
+    </hudson.plugins.sonar.SonarInstallation>
+  </installations>
+  <buildWrapperEnabled>false</buildWrapperEnabled>
+</hudson.plugins.sonar.SonarGlobalConfiguration>

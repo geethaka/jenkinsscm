@@ -1,0 +1,573 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>ssh://ec2-50-19-97-148.compute-1.amazonaws.com/symphony/product/web-portal.git</url>
+        <credentialsId>af3778d0-f05c-4608-878e-c085228d6b05</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>app</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>docker-php-source</textFilePath>
+      <textFileContent>#!/bin/sh
+set -e
+
+dir=/usr/src/php
+
+usage() {
+	echo &quot;usage: $0 COMMAND&quot;
+	echo
+	echo &quot;Manage php source tarball lifecycle.&quot;
+	echo
+	echo &quot;Commands:&quot;
+	echo &quot;   extract  extract php source tarball into directory $dir if not already done.&quot;
+	echo &quot;   delete   delete extracted php source located into $dir if not already done.&quot;
+	echo
+}
+
+case &quot;$1&quot; in
+	extract)
+		mkdir -p &quot;$dir&quot;
+		if [ ! -f &quot;$dir/.docker-extracted&quot; ]; then
+			tar -Jxf /usr/src/php.tar.xz -C &quot;$dir&quot; --strip-components=1
+			touch &quot;$dir/.docker-extracted&quot;
+		fi
+		;;
+
+	delete)
+		rm -rf &quot;$dir&quot;
+		;;
+
+	*)
+		usage
+		exit 1
+		;;
+esac
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>docker-php-ext-enable</textFilePath>
+      <textFileContent>#!/bin/sh
+set -e
+
+cd &quot;$(php -r &apos;echo ini_get(&quot;extension_dir&quot;);&apos;)&quot;
+
+usage() {
+	echo &quot;usage: $0 [options] module-name [module-name ...]&quot;
+	echo &quot;   ie: $0 gd mysqli&quot;
+	echo &quot;       $0 pdo pdo_mysql&quot;
+	echo &quot;       $0 --ini-name 0-apc.ini apcu apc&quot;
+	echo
+	echo &apos;Possible values for module-name:&apos;
+	echo $(find -maxdepth 1 -type f -name &apos;*.so&apos; -exec basename &apos;{}&apos; &apos;;&apos; | sort)
+}
+
+opts=&quot;$(getopt -o &apos;h?&apos; --long &apos;help,ini-name:&apos; -- &quot;$@&quot; || { usage &gt;&amp;2 &amp;&amp; false; })&quot;
+eval set -- &quot;$opts&quot;
+
+iniName=
+while true; do
+	flag=&quot;$1&quot;
+	shift
+	case &quot;$flag&quot; in
+		--help|-h|&apos;-?&apos;) usage &amp;&amp; exit 0 ;;
+		--ini-name) iniName=&quot;$1&quot; &amp;&amp; shift ;;
+		--) break ;;
+		*)
+			{
+				echo &quot;error: unknown flag: $flag&quot;
+				usage
+			} &gt;&amp;2
+			exit 1
+			;;
+	esac
+done
+
+modules=
+for module; do
+	if [ -z &quot;$module&quot; ]; then
+		continue
+	fi
+	if [ -f &quot;$module.so&quot; ] &amp;&amp; ! [ -f &quot;$module&quot; ]; then
+		# allow &quot;.so&quot; to be optional
+		module=&quot;$module.so&quot;
+	fi
+	if ! [ -f &quot;$module&quot; ]; then
+		echo &gt;&amp;2 &quot;error: $(readlink -f &quot;$module&quot;) does not exist&quot;
+		echo &gt;&amp;2
+		usage &gt;&amp;2
+		exit 1
+	fi
+	modules=&quot;$modules $module&quot;
+done
+
+if [ -z &quot;$modules&quot; ]; then
+	usage &gt;&amp;2
+	exit 1
+fi
+
+for module in $modules; do
+	if nm -g &quot;$module&quot; | grep -q &apos; zend_extension_entry$&apos;; then
+		# https://wiki.php.net/internals/extensions#loading_zend_extensions
+		line=&quot;zend_extension=$(readlink -f &quot;$module&quot;)&quot;
+	else
+		line=&quot;extension=$module&quot;
+	fi
+
+	ext=&quot;$(basename &quot;$module&quot;)&quot;
+	ext=&quot;${ext%.*}&quot;
+	if php -r &apos;exit(extension_loaded(&quot;&apos;&quot;$ext&quot;&apos;&quot;) ? 0 : 1);&apos;; then
+		# this isn&apos;t perfect, but it&apos;s better than nothing
+		# (for example, &apos;opcache.so&apos; presents inside PHP as &apos;Zend OPcache&apos;, not &apos;opcache&apos;)
+		echo &gt;&amp;2
+		echo &gt;&amp;2 &quot;warning: $ext ($module) is already loaded!&quot;
+		echo &gt;&amp;2
+		continue
+	fi
+
+	ini=&quot;/usr/local/etc/php/conf.d/${iniName:-&quot;docker-php-ext-$ext.ini&quot;}&quot;
+	if ! grep -q &quot;$line&quot; &quot;$ini&quot; 2&gt;/dev/null; then
+		echo &quot;$line&quot; &gt;&gt; &quot;$ini&quot;
+	fi
+done
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>docker-php-ext-install</textFilePath>
+      <textFileContent>#!/bin/sh
+set -e
+
+srcExists=
+if [ -d /usr/src/php ]; then
+	srcExists=1
+fi
+docker-php-source extract
+if [ -z &quot;$srcExists&quot; ]; then
+	touch /usr/src/php/.docker-delete-me
+fi
+
+cd /usr/src/php/ext
+
+usage() {
+	echo &quot;usage: $0 [-jN] ext-name [ext-name ...]&quot;
+	echo &quot;   ie: $0 gd mysqli&quot;
+	echo &quot;       $0 pdo pdo_mysql&quot;
+	echo &quot;       $0 -j5 gd mbstring mysqli pdo pdo_mysql shmop&quot;
+	echo
+	echo &apos;if custom ./configure arguments are necessary, see docker-php-ext-configure&apos;
+	echo
+	echo &apos;Possible values for ext-name:&apos;
+	find . \
+			-mindepth 2 \
+			-maxdepth 2 \
+			-type f \
+			-name &apos;config.m4&apos; \
+		| xargs -n1 dirname \
+		| xargs -n1 basename \
+		| sort \
+		| xargs
+}
+
+opts=&quot;$(getopt -o &apos;h?j:&apos; --long &apos;help,jobs:&apos; -- &quot;$@&quot; || { usage &gt;&amp;2 &amp;&amp; false; })&quot;
+eval set -- &quot;$opts&quot;
+
+j=1
+while true; do
+	flag=&quot;$1&quot;
+	shift
+	case &quot;$flag&quot; in
+		--help|-h|&apos;-?&apos;) usage &amp;&amp; exit 0 ;;
+		--jobs|-j) j=&quot;$1&quot; &amp;&amp; shift ;;
+		--) break ;;
+		*)
+			{
+				echo &quot;error: unknown flag: $flag&quot;
+				usage
+			} &gt;&amp;2
+			exit 1
+			;;
+	esac
+done
+
+exts=
+for ext; do
+	if [ -z &quot;$ext&quot; ]; then
+		continue
+	fi
+	if [ ! -d &quot;$ext&quot; ]; then
+		echo &gt;&amp;2 &quot;error: $PWD/$ext does not exist&quot;
+		echo &gt;&amp;2
+		usage &gt;&amp;2
+		exit 1
+	fi
+	exts=&quot;$exts $ext&quot;
+done
+
+if [ -z &quot;$exts&quot; ]; then
+	usage &gt;&amp;2
+	exit 1
+fi
+
+pm=&apos;unknown&apos;
+if [ -e /lib/apk/db/installed ]; then
+	pm=&apos;apk&apos;
+fi
+
+apkDel=
+if [ &quot;$pm&quot; = &apos;apk&apos; ]; then
+	if [ -n &quot;$PHPIZE_DEPS&quot; ]; then
+		if apk info --installed .phpize-deps-configure &gt; /dev/null; then
+			apkDel=&apos;.phpize-deps-configure&apos;
+		elif ! apk info --installed .phpize-deps &gt; /dev/null; then
+			apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
+			apkDel=&apos;.phpize-deps&apos;
+		fi
+	fi
+fi
+
+for ext in $exts; do
+	(
+		cd &quot;$ext&quot;
+		[ -e Makefile ] || docker-php-ext-configure &quot;$ext&quot;
+		make -j&quot;$j&quot;
+		make -j&quot;$j&quot; install
+		find modules \
+			-maxdepth 1 \
+			-name &apos;*.so&apos; \
+			-exec basename &apos;{}&apos; &apos;;&apos; \
+				| xargs -r docker-php-ext-enable
+		make -j&quot;$j&quot; clean
+	)
+done
+
+if [ &quot;$pm&quot; = &apos;apk&apos; ] &amp;&amp; [ -n &quot;$apkDel&quot; ]; then
+	apk del $apkDel
+fi
+
+if [ -e /usr/src/php/.docker-delete-me ]; then
+	docker-php-source delete
+fi
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>Dockerfile</textFilePath>
+      <textFileContent>FROM centos:7
+
+# persistent / runtime deps
+
+		
+RUN  yum install -y \
+		ca-certificates \
+		curl \
+		libedit2 \
+		libsqlite3-0 \
+		libxml2 \
+		autoconf \
+		file \
+		g++ \
+		gcc \
+		libc-dev \
+		make \
+		pkg-config \
+		re2c \	
+		xz-utils 
+
+ENV PHP_INI_DIR /usr/local/etc/php
+RUN mkdir -p $PHP_INI_DIR/conf.d
+
+RUN groupadd www-data
+RUN useradd -g www-data www-data
+
+##&lt;autogenerated&gt;##
+ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=www-data --with-fpm-group=www-data
+##&lt;/autogenerated&gt;##
+
+ENV GPG_KEYS 0BD78B5F97500D450838F95DFE857D9A90D90EC1 6E4F6AB321FDC07F2C332E3AC2BF0BC433CFC8B3
+
+ENV PHP_VERSION 5.6.28
+ENV PHP_URL=&quot;https://secure.php.net/get/php-5.6.28.tar.xz/from/this/mirror&quot; PHP_ASC_URL=&quot;https://secure.php.net/get/php-5.6.28.tar.xz.asc/from/this/mirror&quot;
+ENV PHP_SHA256=&quot;07187ba2870f89cef334cd2ad6cb801aeec5eaf283da0293a9a6be75d6786d11&quot; PHP_MD5=&quot;1e01c66b2e67ab3b56a6180ee560fe4c&quot;
+
+RUN set -xe; \
+	\
+	fetchDeps=&apos; \
+		wget \
+	&apos;; \
+	yum update; \
+	yum install -y $fetchDeps; \
+	\
+	mkdir -p /usr/src; \
+	cd /usr/src; \
+	\
+	wget -O php.tar.xz &quot;$PHP_URL&quot;; \
+	\
+	if [ -n &quot;$PHP_SHA256&quot; ]; then \
+		echo &quot;$PHP_SHA256 *php.tar.xz&quot; | sha256sum -c -; \
+	fi; \
+	if [ -n &quot;$PHP_MD5&quot; ]; then \
+		echo &quot;$PHP_MD5 *php.tar.xz&quot; | md5sum -c -; \
+	fi; \
+	\
+	if [ -n &quot;$PHP_ASC_URL&quot; ]; then \
+		wget -O php.tar.xz.asc &quot;$PHP_ASC_URL&quot;; \
+		export GNUPGHOME=&quot;$(mktemp -d)&quot;; \
+		for key in $GPG_KEYS; do \
+			gpg --keyserver ha.pool.sks-keyservers.net --recv-keys &quot;$key&quot;; \
+		done; \
+		gpg --batch --verify php.tar.xz.asc php.tar.xz; \
+		rm -r &quot;$GNUPGHOME&quot;; \
+	fi; 
+	
+	
+
+COPY docker-php-source /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/docker-php-source
+
+RUN set -xe \
+	&amp;&amp; buildDeps=&quot; \
+		$PHP_EXTRA_BUILD_DEPS \
+		libcurl-devel \
+		libedit-devel \
+		libsqlite3-devel \
+		openssl-devel \
+		libsslcommon2-devel \
+		libxml2-devel \
+	&quot; \
+	&amp;&amp; yum update &amp;&amp; yum install -y $buildDeps \
+	\
+	&amp;&amp; docker-php-source extract \
+	&amp;&amp; cd /usr/src/php \
+	&amp;&amp; ./configure \
+		--with-config-file-path=&quot;$PHP_INI_DIR&quot; \
+		--with-config-file-scan-dir=&quot;$PHP_INI_DIR/conf.d&quot; \
+		\
+		--disable-cgi \
+		\
+# --enable-ftp is included here because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
+		--enable-ftp \
+# --enable-mbstring is included here because otherwise there&apos;s no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
+		--enable-mbstring \
+# --enable-mysqlnd is included here because it&apos;s harder to compile after the fact than extensions are (since it&apos;s a plugin for several extensions, not an extension in itself)
+		--enable-mysqlnd \
+		\
+		--with-curl \
+		--with-libedit \
+		--with-openssl \
+		--with-zlib \
+		\
+		$PHP_EXTRA_CONFIGURE_ARGS \
+	&amp;&amp; make -j &quot;$(nproc)&quot; \
+	&amp;&amp; make install \
+	&amp;&amp; { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all &apos;{}&apos; + || true; } \
+	&amp;&amp; make clean \
+	&amp;&amp; docker-php-source delete 
+	
+	
+
+COPY docker-php-ext-* /usr/local/bin/
+
+##&lt;autogenerated&gt;##
+WORKDIR /var/www/html
+
+RUN set -ex \
+	&amp;&amp; cd /usr/local/etc \
+	&amp;&amp; if [ -d php-fpm.d ]; then \
+		# for some reason, upstream&apos;s php-fpm.conf.default has &quot;include=NONE/etc/php-fpm.d/*.conf&quot;
+		sed &apos;s!=NONE/!=!g&apos; php-fpm.conf.default | tee php-fpm.conf &gt; /dev/null; \
+		cp php-fpm.d/www.conf.default php-fpm.d/www.conf; \
+	else \
+		# PHP 5.x don&apos;t use &quot;include=&quot; by default, so we&apos;ll create our own simple config that mimics PHP 7+ for consistency
+		mkdir php-fpm.d; \
+		cp php-fpm.conf.default php-fpm.d/www.conf; \
+		{ \
+			echo &apos;[global]&apos;; \
+			echo &apos;include=etc/php-fpm.d/*.conf&apos;; \
+		} | tee php-fpm.conf; \
+	fi \
+	&amp;&amp; { \
+		echo &apos;[global]&apos;; \
+		echo &apos;error_log = /proc/self/fd/2&apos;; \
+		echo; \
+		echo &apos;[www]&apos;; \
+		echo &apos;; if we send this to /proc/self/fd/1, it never appears&apos;; \
+		echo &apos;access.log = /proc/self/fd/2&apos;; \
+		echo; \
+		echo &apos;clear_env = no&apos;; \
+		echo; \
+		echo &apos;; Ensure worker stdout and stderr are sent to the main error log.&apos;; \
+		echo &apos;catch_workers_output = yes&apos;; \
+	} | tee php-fpm.d/docker.conf \
+	&amp;&amp; { \
+		echo &apos;[global]&apos;; \
+		echo &apos;daemonize = no&apos;; \
+		echo; \
+		echo &apos;[www]&apos;; \
+		echo &apos;listen = [::]:9000&apos;; \
+	} | tee php-fpm.d/zz-docker.conf
+
+ADD app/ /app
+
+EXPOSE 9000
+CMD [&quot;php-fpm&quot;]
+##&lt;/autogenerated&gt;##</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>docker-php-ext-configure</textFilePath>
+      <textFileContent>#!/bin/sh
+set -e
+
+srcExists=
+if [ -d /usr/src/php ]; then
+	srcExists=1
+fi
+docker-php-source extract
+if [ -z &quot;$srcExists&quot; ]; then
+	touch /usr/src/php/.docker-delete-me
+fi
+
+ext=&quot;$1&quot;
+extDir=&quot;/usr/src/php/ext/$ext&quot;
+if [ -z &quot;$ext&quot; ] || [ ! -d &quot;$extDir&quot; ]; then
+	echo &gt;&amp;2 &quot;usage: $0 ext-name [configure flags]&quot;
+	echo &gt;&amp;2 &quot;   ie: $0 gd --with-jpeg-dir=/usr/local/something&quot;
+	echo &gt;&amp;2
+	echo &gt;&amp;2 &apos;Possible values for ext-name:&apos;
+	find /usr/src/php/ext \
+			-mindepth 2 \
+			-maxdepth 2 \
+			-type f \
+			-name &apos;config.m4&apos; \
+		| xargs -n1 dirname \
+		| xargs -n1 basename \
+		| sort \
+		| xargs
+	exit 1
+fi
+shift
+
+pm=&apos;unknown&apos;
+if [ -e /lib/apk/db/installed ]; then
+	pm=&apos;apk&apos;
+fi
+
+if [ &quot;$pm&quot; = &apos;apk&apos; ]; then
+	if \
+		[ -n &quot;$PHPIZE_DEPS&quot; ] \
+		&amp;&amp; ! apk info --installed .phpize-deps &gt; /dev/null \
+		&amp;&amp; ! apk info --installed .phpize-deps-configure &gt; /dev/null \
+	; then
+		apk add --no-cache --virtual .phpize-deps-configure $PHPIZE_DEPS
+	fi
+fi
+
+set -x
+cd &quot;$extDir&quot;
+phpize
+./configure &quot;$@&quot;
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>php-fpm.conf</textFilePath>
+      <textFileContent>[global]
+pid = /var/run/php5-fpm.pid
+error_log = stderr
+include=/etc/php5/fpm/pool.d/*.conf
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>pool.d/www.conf</textFilePath>
+      <textFileContent>[www]
+user = www-data
+group = www-data
+
+listen = 9000
+listen.owner = www-data
+listen.group = www-data
+
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>app/config/autoload/global.php</textFilePath>
+      <textFileContent>&lt;?php
+return array(
+    &apos;db&apos; =&gt; array(
+        &apos;driver&apos; =&gt; &apos;Pdo&apos;,
+        &apos;dsn&apos; =&gt; &apos;mysql:dbname=dtalk;host=symphonydtalk.c6kifiat6wer.eu-west-1.rds.amazonaws.com&apos;,
+        &apos;username&apos; =&gt; &apos;root&apos;,
+        &apos;password&apos; =&gt; &apos;1qaz2wsx&apos;,
+        &apos;driver_options&apos; =&gt; array(
+        ),
+    ),
+    &apos;service_manager&apos; =&gt; array(
+        &apos;factories&apos; =&gt; array(
+            &apos;Zend\Db\Adapter\Adapter&apos;
+            =&gt; &apos;Zend\Db\Adapter\AdapterServiceFactory&apos;,
+        ),
+    ),
+    &apos;phpSettings&apos; =&gt; array(
+        &apos;max_execution_time&apos; =&gt; 60,
+        &apos;date.timezone&apos; =&gt; &apos;UTC&apos;,
+//        &apos;mbstring.internal_encoding&apos; =&gt; &apos;UTF-8&apos;,
+        &apos;default_charset&apos; =&gt; &apos;UTF-8&apos;,
+    ),
+    &apos;deployment&apos; =&gt; &apos;development&apos;,
+);
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <hudson.tasks.Shell>
+      <command>sudo docker build -t dtphp .
+sudo docker tag dtphp:latest 341025277667.dkr.ecr.eu-west-1.amazonaws.com/dtphp:latest
+sudo docker login -u AWS -p AQECAHh+dS+BlNu0NxnXwowbILs115yjd+LNAZhBLZsunOxk3AAAAy0wggMpBgkqhkiG9w0BBwagggMaMIIDFgIBADCCAw8GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM7zYoH7fMYMRW6Sy0AgEQgIIC4GezjOVi/ALjbuuKTtcdMGNHfoIqqIqALrAaJRHrkRz0k4kDOJ7Sw+EXvgMGQvcEYpt7zO2rGp1NTRdA2OiknDiSKqnemBl0mPrCm29vx1hCm8Y+BdfnH/YkuDidVWtANHAzwnKByLgyUmbLVQvKlCfN8U+lak+bF15Lt86w8a5Qfy7tz0W9oDYDN2we1gwY3bpFoUnqzp7A5IBCT0wCK1DHjnFSBiycjY17fHHpvGLZmXqH7eWuCaycDfCcGAqIfnLOeEE6ov7LD5Rt4vKJzFww/cgkykYFmeggMQJA1pq5EaVrYVFsnveVOOjck5Sae0P9+z0z7AczoE8085AfJasqAkkAdUOEDtHYEglWXdGdzJC6Vj1jhWceX4bl+jkwmS54WXs76VJ5rYSRkJdu3/ajmNU2dF3MbXx3+VbpM4MXGvVpAUiQiqf7b+ulQcsHIdDGHZdGCmzY/hXYyJJoP4gyv1pksMkhjd7acYeaqUqCjCdiDRviKg7eJEhlRsJaJy0Zg15EV5ChYfx/KXsU9CBJP3w6c5XUvpSL8l5eizVKR2wIFqW53FAR3g/cz9mU0ZD0gmGDQuEbvevVBMQrfx0IWL/OdL2YvG9E17sAFku1rBmlgqCKXdRcyXc3MPqsi/yZ68ASLiE07VR4jX5uRQjpipSkSQYEXu//ItqJRblR+I/F4YADPFZxOGsLvNwuq2FI9dtVmrHVteaC3oaNnsoPGPLbSSa7aOopzMW8JZ5Zly+YVAzLcWhLk2jkSunOV+xcDtUYeyDM0FF+pyjhn2lrkafkr/gTskS7Kq+MTODJRiHsODavxT7y/MN/3TO3UCQ4k5dNyM9iUvxmThQ3+TFkbTfcq77CpdvYRDVjK+BCwwmtJqiJXsBmGFg4FykCPlvZZNWfBtxmNAzmsOkxG/BKUpaE1tXFwv6m4XJ0fgHCAWP6JhE4EWUqGicAuoRCM59CsnLWDZi0ZVmrJ68siDk= -e none https://341025277667.dkr.ecr.eu-west-1.amazonaws.com
+sudo docker push 341025277667.dkr.ecr.eu-west-1.amazonaws.com/dtphp:latest</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

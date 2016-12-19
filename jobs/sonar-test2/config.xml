@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>ssh://ec2-50-19-97-148.compute-1.amazonaws.com/symphony/product/web-portal.git</url>
+        <credentialsId>af3778d0-f05c-4608-878e-c085228d6b05</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>app</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>sonar-project.properties</textFilePath>
+      <textFileContent># required metadata
+sonar.projectKey=Dtalk-UI
+sonar.projectName=Dtalk-UI
+sonar.projectVersion=1.0.1
+
+sonar.sources=/var/lib/jenkins/workspace/sonar-test2/app
+sonar.language=php
+
+</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <hudson.plugins.sonar.SonarRunnerBuilder plugin="sonar@2.5">
+      <project>sonar-project.properties</project>
+      <properties></properties>
+      <javaOpts></javaOpts>
+      <additionalArguments></additionalArguments>
+      <jdk>(Inherit From Job)</jdk>
+      <task></task>
+    </hudson.plugins.sonar.SonarRunnerBuilder>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
