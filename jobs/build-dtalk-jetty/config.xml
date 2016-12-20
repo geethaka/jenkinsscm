@@ -204,7 +204,7 @@ cp app/controller/build/libs/symphony-controller-2.0-SNAPSHOT.war webapps/servic
 sudo docker build -t djetty .
 sudo docker tag djetty:latest 341025277667.dkr.ecr.eu-west-1.amazonaws.com/djetty:latest
 sudo docker login -u AWS -p AQECAHh+dS+BlNu0NxnXwowbILs115yjd+LNAZhBLZsunOxk3AAAAxkwggMVBgkqhkiG9w0BBwagggMGMIIDAgIBADCCAvsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMyWbVDc/D+ackp4ITAgEQgIICzC4m/XenDWLQZng3IWSsFi0H8bfXpH9AiDPFL9zZBk6OA26glD0D2nLr+UlMI60tpg2rFNn7PisV+0RYwtaydIk54ZELfnhGjQXOI4g9m9QKaHZ0jIiyufNB1VDNRIEuO0TPvAEiFCY9r3+Z3vhDBVqMpQ6oLlInr9cbekGH6y9QX0dX9UrEtj2iVZu7s7+iw9XffJRZiwdeDXjSeaUFJPXnibA2M3WZFbpV/ztAk485vNFCgkAeB21Qye2kNlUfkailurPH1xs+lv1+1qwiAhIqiJvIfWZNQeku9CqpleYiYMYkluVHaX67lay8/be1E07TZScYaQgSJYVp3J3av3Fk30wwarbI1XOXC7rEAKkx8hv3NEfzW55Tzu9CqwK+Bxry3jrOL+c2dwSLCEiZLmjSGclzarOQpLAMP4Cz6oitSXFWo8Lki9ehebwhaV2OMRVj4aTi//AGe+6qAvXP3KR1SEdKLtE/8lzHeTH6eTnQOKo8xMFLI3Fpp52dsz3n1kFmVoba9iu2Kno31rncy5EmKOTbplKkrnu685HBOAr5w7BLMeGE/j7ob8lgvuMz/Xt2ShRu6fP7cx1whaZx8laIXintFzjust+kGw3Y+IHkfglvWfgBC4XS4sG5Fg9MQfsmDuovtNnadiVoxL1303JPlj+d5GCB6Su22TQphJyxZpJ3IQ4I+RVmcivyPRHp7gp2+7kSIbTY/RcPVr5wqCN4ZdcpTb+pKs+6BLH88DHWolUB2dN9mPJQDDFR3clXtGKzKxHnXfeZ31na7+jXYDn+GhQ+8yvv37g5z8nOEItI8+0+6KrtTocnKHYEYjNb1SK/opcswLeqA2uLCssUWj7VRVBC/+VTa06QWhMCxDFdGx+umySSzOcW37q8d0GVqJpbKyjBvw1+MnUnmnqZ4+zBnpxkbFFbuu3Y+tNvVk4lUx+TNdBLWmqhwxQO -e none https://341025277667.dkr.ecr.eu-west-1.amazonaws.com
-sudo docker push 341025277667.dkr.ecr.eu-west-1.amazonaws.com/djetty:latest</command>
+#sudo docker push 341025277667.dkr.ecr.eu-west-1.amazonaws.com/djetty:latest</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
