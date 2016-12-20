@@ -65,7 +65,7 @@ ENTRYPOINT /opt/jetty/bin/jetty.sh start &amp;&amp; bash
       <textFilePath>app/modules/src/main/resources/modules.properties</textFilePath>
       <textFileContent>######### database ##########
 database.driver=com.mysql.jdbc.Driver
-database.url=jdbc:mysql://symphonydtalk.c6kifiat6wer.eu-west-1.rds.amazonaws.com:3306/dtalk
+database.url=jdbc:mysql://symphonydtalk.c1aao3ix2plt.eu-central-1.rds.amazonaws.com:3306/dtalk
 database.username=root
 database.password=1qaz2wsx
 
