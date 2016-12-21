@@ -51,6 +51,12 @@ http {
 
 	
 
+upstream phpfcgi {
+     	server dtalk-php-svc:9000;
+
+     }
+
+
   server {
 
         listen       80;
@@ -67,6 +73,7 @@ http {
 	location ~ \.php$ {
         	try_files $uri /index.php =404;
         	fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        	fastcgi_pass phpfcgi;
         	fastcgi_index index.php;
         	fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         	include fastcgi_params;
@@ -83,8 +90,7 @@ http {
 
 	
 	
-}
-</textFileContent>
+}</textFileContent>
       <fileOption>overWrite</fileOption>
       <useWorkspace>true</useWorkspace>
     </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
