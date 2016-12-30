@@ -91,7 +91,6 @@ dapp.app.type.android = ANDROID
 dapp.app.type.ios = IOS
 dapp.download.link =  www.dialog.lk/d-app-android / www.dialog.lk/d-app-ios
 dapp.voucher.maximum.voucher.reserved.time = 180
-dapp.addToBill.commision = 11
 
 ######### webservice - voucher service ##########
 voucher.service.appId=1
@@ -99,7 +98,7 @@ voucher.service.marshaller.contextPath=com.dialog.vouchers
 voucher.service.defaultUri=http://dapptest.dialog.lk:8080/axis2/services/VoucherService/
 
 ######## apple certificate p12 file #############
-certificate.path=/home/kalpana/servers/BackendServices/Symphony/services/modules/src/main/resources/apns-dev-cert.p12
+certificate.path=/apps/src/services-dialog/modules/src/main/resources/apns-dev-cert.p12
 certificate.password=sym.dapp
 certificate.production=false
 
@@ -127,6 +126,17 @@ ideabiz.sms.username = axipaynew
 ideabiz.sms.password = dialog@123
 ideabiz.sms.application = Axipay
 
+################# D-Talk FCM message ##################
+fcm.push.notification.service.url = https://fcm.googleapis.com/fcm/send
+fcm.push.notification.server.key = AIzaSyB5rUphPsF6NbLU20KlVW_RxYNpAhgFwBw
+
+################# D-talk image url ###################
+dTalk.image.base.url=/apps/src/web-portal-dialog/public/images/customers/
+
+################## D-Talk wrong attempts ############
+dTalk.maximum.wrong.registration.otp.attempts=3
+dTalk.maximum.resend.otp=3
+
 ################# D_Talk ##################
 dTalk.sms.gateway=MIFE
 ## NEXMO/ MIFE
@@ -136,49 +146,21 @@ nexmo.sms.gratway.url=https://rest.nexmo.com/sms/json
 nexmo.sms.api.key=6a2ebfa9
 nexmo.sms.api.secret=7d934548
 
-################# D-Talk FCM message ##################
-fcm.push.notification.service.url = https://fcm.googleapis.com/fcm/send
-fcm.push.notification.server.key = AIzaSyB5rUphPsF6NbLU20KlVW_RxYNpAhgFwBw
+################ D-Talk data formats ###########
+dTalk.allowed.first.name.formats  = ^[a-zA-z]+([ &apos;-][a-zA-Z]+)*$
+dTalk.allowed.password.formats  = ^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&amp;*-_=]).{6,}$
 
-################# D-talk image url ###################
-dTalk.image.base.url=/images/customers/
-
-################## D-Talk wrong attempts ############
-dTalk.maximum.wrong.registration.otp.attempts=3
-dTalk.maximum.resend.otp=3
-
-################ D-Talk data formats ################
-dTalk.allowed.first.name.formats =^[_A-Za-z]{2,50}$
-#dTalk.allowed.last.name.formats = ^[a-zA-z]+([ &apos;-][a-zA-Z]+)*$
 
 ############## news categories #####################
 dTalk.hot.news.derana.rss = http://www.adaderana.lk/rsshotnews.php
 dTalk.entertainment.news.derana.rss = http://adaderana.lk/rssentertainment.php
 dTalk.sports.news.derana.rss = http://www.adaderana.lk/rsssports.php
 
-
-######## DApp StarPoints ###########
-ideabiz.starPoints.burn.url = https://ideabiz.lk/apicall/startpoint/v1/burnStarpoints
-ideabiz.starPoints.counter.alias = DAPP_VOUCHER1
-ideabiz.starPoints.counter.auth = 123456
-ideabiz.starPoints.subscriber.type = MOBILE
-ideabiz.starPoints.access.mode = POS
-
-######## DApp EzCash ###########
-mife.ezCash.submit.transaction.url = https://mife.dialog.lk/apicall/ezcash/PaymentModule/agentservice/submitTransactionRequest/1.0
-mife.ezCash.username = ideaBiz_client
-mife.ezCash.password = IbizClient@2016
-mife.ezCash.agentAlias = 777411164
-mife.ezCash.agentPin = 1234
-mife.ezCash.channel = WEB
-mife.ezCash.txType = TX_AOTC
-mife.ezCash.transaction.status.check.url = https://mife.dialog.lk/apicall/ezcash/PaymentModule/agentservice/transactionStatusViaRequestId/1.0
-
 ######### D-Talk OCS ##########
 mife.ocs.username = Ideahub
 mife.ocs.password = aq1sw2de3!
 mife.ocs.scope = PRODUCTION
-mife.ocs.basic = b3JhZEl5NjE3WkowZ016RFNyTlZmN2tfa2xNYTo4T1lPaVAwWnM0UTlrUzZqdnpNSHJoS3haMTRh
+mife.ocs.basic = MWlBNl9UZGQwQWNobkgyQm9Zd0FYTHdnUzFRYTo3RXU0bkxGNjFCaWZsXzYyU1ZNWktJSG93Y01h
 mife.ocs.get.access.token.url = https://mife.dialog.lk/apicall/token
 mife.ocs.create.subscriber = https://mife.dialog.lk/apicall/rcsmanagesubscriber/v1.0/create/
 mife.ocs.remove.subscriber = https://mife.dialog.lk/apicall/rcsmanagesubscriber/remove/
@@ -186,12 +168,53 @@ mife.ocs.main.package.change = https://mife.dialog.lk/apicall/rcsmanagesubscribe
 mife.ocs.sub.package.change = https://mife.dialog.lk/apicall/rcsmanagesubscriber/changesubpackage/
 mife.ocs.balance.query = https://mife.dialog.lk/apicall/rcsbalancequery/all/
 mife.ocs.account.topup = https://mife.dialog.lk/apicall/rcsmanagesubscriber/
-
 mife.ocs.account.topup.reason.code = 111
-mife.ocs.account.remaining.credit.type = 2001
+mife.ocs.account.remaining.credit.type = 2000
 mife.ocs.account.remaining.time.type = 4031
 
-</textFileContent>
+########### Horoscope #############
+rumex.horoscope.username = ideahub
+rumex.horoscope.password = &amp;ja&quot;%@js_4&lt;hd
+rumex.horoscope.agent.name = RCS
+rumex.horoscope.mode = RCS client
+rumex.horoscope.service.id = 1
+
+############ SIP registration #######
+dtalk.sip.realm = rcs.mnc002.mcc413.3gppnetwork.org
+dtalk.sip.password = 12345678
+dtalk.sip.pcscfHost = 122.255.0.56
+dtalk.sip.pcscfPort = 5070
+dtalk.sip.networkTransport = tcp
+
+########### Ideabiz OCS ##########
+
+ideabiz.ocs.username = Dinushika
+ideabiz.ocs.password = RCS@123dg
+ideabiz.ocs.scope = SANDBOX
+ideabiz.ocs.basic = dmVVcVBoVmhKOUpTdG9aeGJEbW53SFpmZHpnYTpmZlN5SkhUbHpVYzBrSGNydUlVMlVpUDZyMm9h
+ideabiz.ocs.get.access.token.url = https://ideabiz.lk/apicall/token
+ideabiz.ocs.create.subscriber = https://ideabiz.lk/apicall/rcs_manage/create/
+ideabiz.ocs.balance.query = https://ideabiz.lk/apicall/rcs_manage/all/
+ideabiz.ocs.account.topup = https://ideabiz.lk/apicall/rcs_manage/
+ideabiz.ocs.change.sub.package =https://ideabiz.lk/apicall/rcs_manage/changesubpackage
+
+########### Packages ############
+ideabiz.ocs.sub.package1 = 50112
+ideabiz.ocs.sub.package2 = 20353
+ideabiz.ocs.sub.package3 = 50101
+ideabiz.ocs.sub.package4 = 20090
+ideabiz.ocs.default.package = 50055
+ideabiz.ocs.change.sub.package.operation.id = 1
+
+
+########### comptel provisioning ###########
+comptel.provisioning.netype = HLR
+comptel.provisioning.orderno = 10
+comptel.provisioning.req.user = ihc
+comptel.provisioning.resp.queue.id = RCS
+comptel.provisioning.create.service = ADD_DTALK
+comptel.provisioning.delete.service = DEL_DTALK
+comptel.provisioning.delete.orderno = 20</textFileContent>
       <fileOption>overWrite</fileOption>
       <useWorkspace>true</useWorkspace>
     </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
@@ -213,7 +236,7 @@ mife.ocs.account.remaining.time.type = 4031
 cp app/controller/build/libs/symphony-controller-2.0-SNAPSHOT.war webapps/service.war
 sudo docker build -t djetty .
 sudo docker tag djetty:latest 341025277667.dkr.ecr.eu-central-1.amazonaws.com/djetty:latest
-sudo docker login -u AWS -p AQECAHh3zYOdtpBBSVw/Y2an8BXID4kwLQfnoTj5zwZtGJZoZQAAAxQwggMQBgkqhkiG9w0BBwagggMBMIIC/QIBADCCAvYGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMbefVobnNdlsZaMmaAgEQgIICx97tqQ38q0cpdhiHXj81y9vovLX8emZM0uTqOI1cmDROJOP127a8ONfHZSNtBusTzMPhOO8EmI0gaasMWyhEZQi+NbLAezajKojfwkYPaEkmlj0rKiXWzab9C1c1V60T50J6ciganxtmbquCMWtS9rzPZrW78KdVLKj7BW4q8BJ9ng6vFXzif24EjnYke39xg4CaL72w6I7BPMo8pFOKix6blQHyYQHapszHc9UPdwO/Uh6MLiG1FbhBtltVPNmrUiSES04aEtaeiJDxb7REetWDlRSq+GJrc51ZQDyY0Sl72eJw1BY1YaCYn29FNijTBRh6VArZnazIw9h7hydSM5qlIyi079i91P5BLKjtJqqDGC77tNJaBbkPr7abbtr+lpgNV+lq1lKYSLg68QlRgyZC6IM0vfUdbS6VS7ED/Lvh455UtPDDwO082a23q8G7w9VCUjn7KKgwtqu6VPvie23EzuF9t6pbK6gQxZRkYJJL7ydQqB+6OAPIAa0BTv1/xv4TARZt11MRpmEjg/QM8iMKR/KlUMT0uJRk/IJLipK9eYX08nejQOiK6BYRhjIrDinoigBd2SmADqnRPu9N2kPfy6AT6nCBBmGOQzjHLFItk4Z+9mTDjTjYYhHqZyBcRX5v0jGQgp1558B/j9JhUjU8ZNG3ZfeFzszUpDrc/yesGC56RWoKpBw05oaHbk+fESaMD+Rzha2YCY7qBeq9W4OBpN/ZcU+GP7lsbqBlJ3buW7CvhF83DEpmNYPF01Z4jW4oJyciU3bSHi57zb9nqhxGT8vk1wwqTV0PhAIKxREzu2NPBscCvpoha8gtmRfWtexs7DgYJjIrZG8pNXr5HmBSph0/Xb52USeMVKz7yNm31Q/bE0/EQJ5TRYMwabOWZd251kAhsA3ajcfJUNVRf6Hpq7kKNLJ9+kEZXZZu4ouj6UfANiK/bg== -e none https://341025277667.dkr.ecr.eu-central-1.amazonaws.com
+sudo docker login -u AWS -p AQECAHh3zYOdtpBBSVw/Y2an8BXID4kwLQfnoTj5zwZtGJZoZQAAAxQwggMQBgkqhkiG9w0BBwagggMBMIIC/QIBADCCAvYGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMW3QDNALd3JrTL6ODAgEQgIICx2/2YBWv+dDF3i5iDgg+Vna45m7zJANP4+bJoMq4YYzixuqU2HjQlRCmita1FeAJdF2DGJ2jFmlxsSfB3VQPEA1gjo+eEgbXT3tBWyR8d/RHIZNrv1WguExe7l3ehm6GPq8K4x9LLUDnSJzBo/g3c54YFc9Jk+nscYWo1sayQhFftUI7StZiQf6QwqtoCTyRPTtyD/O+pjKi2MYamgMqyOyh3Kupcm1lp/PbahbhxHD+QiVc8inTlZNHMj7We3ch9xJMH+F5qyIBE1WwRfwnIRlD9FZLGP2uOAzsju8PQVa9In4X9c6OmcnQf8zIAi2Kjiz7CQzY9cXx7z5pUABtBF3UlwoNjN/xZYxtlumIRjWuOc6NHEHlnuCnV1Fn6fVziXPlUKdkpPpK1khq2iutwD+eDAybT8YInM3DIGX1JoqTm77A2ayzXEbPmp7HcRl7MEc1B3BUCUUkn2Q5sx9NGtJI9n4a36pAe85MPnMArK/L2MSd1jPOPv2a36dWqXYGmQ4vEfZkqin4nF+vVu5VqIbylZ89rlXvHbfHwtKt4ZdcI/u9MduVH/RCMvfAiQpGaN8OFZrZwOGclJfk0AoMHR4y1KioLSs7rQL5W/LKAPdZ6DTJYkD81dQIq3PhIdHTcz9w0oNMxkiTP+Goulz+L5eILawV501lieN4opHMmKGWVeHbsQeGi7x7Jbmzx85SvdcIgLt+qXlXhmZNrGJQkTDkfkyZsLbbjbc8J7K6/MuBoVwFHNFpM/LzS8lPjPv5d+OF30gGFFNzmvXw0F6DH32gm46xzW7UIDq36LQUZ2D68fifo0WJtanAdn2PnY6KyI955vbMSlBYNiiSA22fFW0nWHFAEQw9ohee5n72ZrDYPx19bqvJaonhYOg5dRua0jVzDMHQ7k8/vV+ZMNVlsy6j+IvmOrOSv0QKR/r3ipje47eeR76neg== -e none https://341025277667.dkr.ecr.eu-central-1.amazonaws.com
 sudo docker push 341025277667.dkr.ecr.eu-central-1.amazonaws.com/djetty:latest</command>
     </hudson.tasks.Shell>
   </builders>
