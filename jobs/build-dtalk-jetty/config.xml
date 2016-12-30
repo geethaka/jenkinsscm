@@ -53,7 +53,7 @@ ADD webapps/ /opt/jetty/webapps
 
 EXPOSE 8080
 
-ENTRYPOINT /opt/jetty/bin/jetty.sh start &amp;&amp; bash
+ENTRYPOINT bash
 
 
 
