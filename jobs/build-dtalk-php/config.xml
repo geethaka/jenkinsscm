@@ -572,14 +572,14 @@ return array(
     &apos;site&apos; =&gt; &apos;mithra&apos;,
     &apos;deployment&apos; =&gt; &apos;production&apos;,
     &apos;dappsync&apos; =&gt; array(
-        &apos;url&apos;          =&gt; &apos;http://35.156.216.97:30281/service//sym/rs/dapp/sync&apos;,
+        &apos;url&apos;          =&gt; &apos;dtalk-jetty-svc:8080/service/rs/dapp/sync&apos;,
         &apos;access_token&apos; =&gt; &apos;e39dc94234beb2e05d5c5e9beb339803&apos;,
     ),
     &apos;dapp_push_notofication&apos; =&gt; array(
-        &apos;url&apos; =&gt; &apos;http://localhost:8010/sym/rs/dapp/notification/send/quick?&apos;,
+        &apos;url&apos; =&gt; &apos;dtalk-jetty-svc:8080/service/rs/dapp/notification/send/quick?&apos;,
     ),
     &apos;dapp_voucher_resend&apos; =&gt; array(
-        &apos;url&apos; =&gt; &apos;http://localhost:4080/sym/rs/vouchers/1.0/voucher/resend&apos;,
+        &apos;url&apos; =&gt; &apos;dtalk-jetty-svc:8080/service/rs/vouchers/1.0/voucher/resend&apos;,
         &apos;access_token&apos; =&gt; &apos;&apos;,
         &apos;initiator&apos; =&gt; &apos;&apos;,
     ),
