@@ -49,7 +49,7 @@ RUN mv jetty-distribution-9.3.14.v20161028 /opt/jetty/
 RUN useradd -m jetty
 
 
-ADD webapps/ /opt/jetty/webapps
+#ADD webapps/ /opt/jetty/webapps
 RUN chown -R jetty:jetty /opt/jetty/
 
 EXPOSE 8080
