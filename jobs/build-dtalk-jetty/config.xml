@@ -52,7 +52,7 @@ RUN useradd -m jetty
 ADD webapps/ /opt/jetty/webapps
 RUN chown -R jetty:jetty /opt/jetty/
 
-EXPOSE 8088
+EXPOSE 8080
 
 ENTRYPOINT /opt/jetty/bin/jetty.sh start &amp;&amp; bash
 
