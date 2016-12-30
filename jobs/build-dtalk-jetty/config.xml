@@ -47,13 +47,14 @@ RUN tar xf jetty-distribution-9.3.14.v20161028.tar.gz
 RUN rm -rf jetty-distribution-9.3.14.v20161028.tar.gz
 RUN mv jetty-distribution-9.3.14.v20161028 /opt/jetty/
 RUN useradd -m jetty
-RUN chown -R jetty:jetty /opt/jetty/
+
 
 ADD webapps/ /opt/jetty/webapps
+RUN chown -R jetty:jetty /opt/jetty/
 
 EXPOSE 8080
 
-ENTRYPOINT /usr/bin/java -Djetty.logging.dir=/opt/jetty/logs -Djetty.home=/opt/jetty -Djetty.base=/opt/jetty -Djava.io.tmpdir=/tmp -jar /opt/jetty/start.jar jetty.state=/opt/jetty/jetty.state jetty-logging.xml jetty-started.xml &amp;&amp; bash
+ENTRYPOINT /opt/jetty/bin/jetty.sh start &amp;&amp; bash
 
 
 
