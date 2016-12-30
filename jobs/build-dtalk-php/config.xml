@@ -537,7 +537,7 @@ pm.max_spare_servers = 3
 return array(
     &apos;db&apos; =&gt; array(
         &apos;driver&apos; =&gt; &apos;Pdo&apos;,
-        &apos;dsn&apos; =&gt; &apos;mysql:dbname=dtalk;host=symphonydtalk.c6kifiat6wer.eu-west-1.rds.amazonaws.com&apos;,
+        &apos;dsn&apos; =&gt; &apos;mysql:dbname=dtalk;host=symphonydtalk.c1aao3ix2plt.eu-central-1.rds.amazonaws.com&apos;,
         &apos;username&apos; =&gt; &apos;root&apos;,
         &apos;password&apos; =&gt; &apos;1qaz2wsx&apos;,
         &apos;driver_options&apos; =&gt; array(
@@ -551,13 +551,45 @@ return array(
     ),
     &apos;phpSettings&apos; =&gt; array(
         &apos;max_execution_time&apos; =&gt; 60,
-        &apos;date.timezone&apos; =&gt; &apos;UTC&apos;,
+        &apos;date.timezone&apos; =&gt; &apos;Asia/Colombo&apos;,
 //        &apos;mbstring.internal_encoding&apos; =&gt; &apos;UTF-8&apos;,
         &apos;default_charset&apos; =&gt; &apos;UTF-8&apos;,
     ),
     &apos;deployment&apos; =&gt; &apos;development&apos;,
-);
-</textFileContent>
+);</textFileContent>
+      <fileOption>overWrite</fileOption>
+      <useWorkspace>true</useWorkspace>
+    </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
+    <com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder plugin="text-file-operations@1.3.2">
+      <textFilePath>app/config/autoload/local.php</textFilePath>
+      <textFileContent>&lt;?php
+return array(
+    &apos;db&apos; =&gt; array(
+        &apos;dsn&apos; =&gt; &apos;mysql:dbname=dtalk;host=symphonydtalk.c1aao3ix2plt.eu-central-1.rds.amazonaws.com;port=3306&apos;,
+        &apos;username&apos; =&gt; &apos;root&apos;,
+        &apos;password&apos; =&gt; &apos;1qaz2wsx&apos;,
+    ),
+    &apos;site&apos; =&gt; &apos;mithra&apos;,
+    &apos;deployment&apos; =&gt; &apos;production&apos;,
+    &apos;dappsync&apos; =&gt; array(
+        &apos;url&apos;          =&gt; &apos;http://35.156.216.97:30281/service//sym/rs/dapp/sync&apos;,
+        &apos;access_token&apos; =&gt; &apos;e39dc94234beb2e05d5c5e9beb339803&apos;,
+    ),
+    &apos;dapp_push_notofication&apos; =&gt; array(
+        &apos;url&apos; =&gt; &apos;http://localhost:8010/sym/rs/dapp/notification/send/quick?&apos;,
+    ),
+    &apos;dapp_voucher_resend&apos; =&gt; array(
+        &apos;url&apos; =&gt; &apos;http://localhost:4080/sym/rs/vouchers/1.0/voucher/resend&apos;,
+        &apos;access_token&apos; =&gt; &apos;&apos;,
+        &apos;initiator&apos; =&gt; &apos;&apos;,
+    ),
+
+
+    &apos;version&apos; =&gt; &apos;45&apos;,
+    &apos;projectName&apos; =&gt; array(
+        &apos;name&apos; =&gt; &apos;Contactless&apos;
+    ),
+);</textFileContent>
       <fileOption>overWrite</fileOption>
       <useWorkspace>true</useWorkspace>
     </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
