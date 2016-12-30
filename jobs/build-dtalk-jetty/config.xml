@@ -53,7 +53,7 @@ ADD webapps/ /opt/jetty/webapps
 
 EXPOSE 8080
 
-ENTRYPOINT bash
+ENTRYPOINT /usr/bin/java -Djetty.logging.dir=/opt/jetty/logs -Djetty.home=/opt/jetty -Djetty.base=/opt/jetty -Djava.io.tmpdir=/tmp -jar /opt/jetty/start.jar jetty.state=/opt/jetty/jetty.state jetty-logging.xml jetty-started.xml &amp;&amp; bash
 
 
 
