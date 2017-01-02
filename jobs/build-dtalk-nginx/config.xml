@@ -81,6 +81,13 @@ upstream phpfcgi {
                 include       /etc/nginx/mime.types;
     	}
 
+       location ~ \.css {
+    add_header  Content-Type    text/css;
+}
+location ~ \.js {
+    add_header  Content-Type    application/x-javascript;
+}
+
  	
         error_page   500 502 503 504  /50x.html;
         location = /50x.html {
