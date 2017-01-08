@@ -12,6 +12,15 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>repo</name>
+          <description></description>
+          <defaultValue>341025277667.dkr.ecr.eu-central-1.amazonaws.com</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
     <configVersion>2</configVersion>
@@ -622,9 +631,9 @@ return array(
     </com.etas.jenkins.plugins.CreateTextFile.CreateFileBuilder>
     <hudson.tasks.Shell>
       <command>sudo docker build -t dtphp .
-sudo docker tag dtphp:latest 341025277667.dkr.ecr.eu-central-1.amazonaws.com/dtphp:latest
+sudo docker tag dtphp:latest $repo/dtphp:latest
 sudo eval &apos;\$(aws ecr get-login --region us-east-1)&apos; 
-sudo docker push 341025277667.dkr.ecr.eu-central-1.amazonaws.com/dtphp:latest</command>
+sudo docker push $repo/dtphp:latest</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
