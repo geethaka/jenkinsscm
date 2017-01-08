@@ -237,7 +237,7 @@ comptel.provisioning.delete.orderno = 20</textFileContent>
 cp app/controller/build/libs/symphony-controller-2.0-SNAPSHOT.war webapps/service.war
 sudo docker build -t djetty .
 sudo docker tag djetty:latest 341025277667.dkr.ecr.eu-central-1.amazonaws.com/djetty:latest
-sudo docker login -u AWS -p AQECAHh3zYOdtpBBSVw/Y2an8BXID4kwLQfnoTj5zwZtGJZoZQAAAxQwggMQBgkqhkiG9w0BBwagggMBMIIC/QIBADCCAvYGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMW3QDNALd3JrTL6ODAgEQgIICx2/2YBWv+dDF3i5iDgg+Vna45m7zJANP4+bJoMq4YYzixuqU2HjQlRCmita1FeAJdF2DGJ2jFmlxsSfB3VQPEA1gjo+eEgbXT3tBWyR8d/RHIZNrv1WguExe7l3ehm6GPq8K4x9LLUDnSJzBo/g3c54YFc9Jk+nscYWo1sayQhFftUI7StZiQf6QwqtoCTyRPTtyD/O+pjKi2MYamgMqyOyh3Kupcm1lp/PbahbhxHD+QiVc8inTlZNHMj7We3ch9xJMH+F5qyIBE1WwRfwnIRlD9FZLGP2uOAzsju8PQVa9In4X9c6OmcnQf8zIAi2Kjiz7CQzY9cXx7z5pUABtBF3UlwoNjN/xZYxtlumIRjWuOc6NHEHlnuCnV1Fn6fVziXPlUKdkpPpK1khq2iutwD+eDAybT8YInM3DIGX1JoqTm77A2ayzXEbPmp7HcRl7MEc1B3BUCUUkn2Q5sx9NGtJI9n4a36pAe85MPnMArK/L2MSd1jPOPv2a36dWqXYGmQ4vEfZkqin4nF+vVu5VqIbylZ89rlXvHbfHwtKt4ZdcI/u9MduVH/RCMvfAiQpGaN8OFZrZwOGclJfk0AoMHR4y1KioLSs7rQL5W/LKAPdZ6DTJYkD81dQIq3PhIdHTcz9w0oNMxkiTP+Goulz+L5eILawV501lieN4opHMmKGWVeHbsQeGi7x7Jbmzx85SvdcIgLt+qXlXhmZNrGJQkTDkfkyZsLbbjbc8J7K6/MuBoVwFHNFpM/LzS8lPjPv5d+OF30gGFFNzmvXw0F6DH32gm46xzW7UIDq36LQUZ2D68fifo0WJtanAdn2PnY6KyI955vbMSlBYNiiSA22fFW0nWHFAEQw9ohee5n72ZrDYPx19bqvJaonhYOg5dRua0jVzDMHQ7k8/vV+ZMNVlsy6j+IvmOrOSv0QKR/r3ipje47eeR76neg== -e none https://341025277667.dkr.ecr.eu-central-1.amazonaws.com
+sudo eval &apos;\$(aws ecr get-login --region us-east-1)&apos; 
 sudo docker push 341025277667.dkr.ecr.eu-central-1.amazonaws.com/djetty:latest</command>
     </hudson.tasks.Shell>
   </builders>
