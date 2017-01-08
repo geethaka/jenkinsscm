@@ -3,7 +3,17 @@
   <actions/>
   <description></description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>repo</name>
+          <description></description>
+          <defaultValue>341025277667.dkr.ecr.eu-central-1.amazonaws.com</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
@@ -236,9 +246,9 @@ comptel.provisioning.delete.orderno = 20</textFileContent>
       <command>rm -rf webapps/service.war
 cp app/controller/build/libs/symphony-controller-2.0-SNAPSHOT.war webapps/service.war
 sudo docker build -t djetty .
-sudo docker tag djetty:latest 341025277667.dkr.ecr.eu-central-1.amazonaws.com/djetty:latest
+sudo docker tag $repo/djetty:latest
 sudo eval &apos;\$(aws ecr get-login --region us-east-1)&apos; 
-sudo docker push 341025277667.dkr.ecr.eu-central-1.amazonaws.com/djetty:latest</command>
+sudo docker push $repo/djetty:latest</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
