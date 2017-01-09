@@ -130,7 +130,7 @@ name=nginx repo \n\
 baseurl=http://nginx.org/packages/centos/$releasever/$basearch/ \n\
 gpgcheck=0 \n\
 enabled=1&apos; &gt;&gt; /etc/yum.repos.d/nginx.repo  \
-	&amp;&amp; yum update \
+	&amp;&amp; yum update -y \
 	&amp;&amp; yum install -y nginx
 	
 ADD nginx.conf /etc/nginx/nginx.conf
@@ -152,7 +152,8 @@ CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</textFileConten
     <hudson.tasks.Shell>
       <command>sudo docker build -t dtnginx .
 sudo docker tag dtnginx:latest $repo/dtnginx:latest
-sudo eval &apos;\$(aws ecr get-login --region us-east-1)&apos; 
+OUTPUT=&quot;$(aws ecr get-login --region us-east-1)&quot;
+sudo ${OUTPUT} 
 sudo docker push $repo/dtnginx:latest</command>
     </hudson.tasks.Shell>
   </builders>
